@@ -32,6 +32,7 @@ app.use(
 );
 
 require('./auth/passport-local')(passport);
+require('./auth/passport-github')(passport);
 const {
     ensureAuthenticated,
     forwardAuthenticated
@@ -95,6 +96,16 @@ app.post('/login', (req, res, next) => {
         failureFlash: false
     })(req, res, next);
 });
+
+app.get('/auth/github',
+  passport.authenticate('github', { scope: [ 'user:email' ] }));
+
+app.get('/auth/github/callback', 
+  passport.authenticate('github', { failureRedirect: '/' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/dashboard');
+  });
 
 app.get('/logout', (req, res) => {
     req.logout();
